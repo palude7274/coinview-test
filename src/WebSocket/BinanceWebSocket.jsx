@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-const BinanceWebSocket = ({setLastBinancePrice}) => {
+const BinanceWebSocket = ({setBinancePrice}) => {
     useEffect(() => {
         const fetchData = () => {
             const ws = new WebSocket(`wss://stream.binance.com:9443/ws`);
@@ -21,7 +21,7 @@ const BinanceWebSocket = ({setLastBinancePrice}) => {
             ws.onmessage = (event) => {
                 const message = JSON.parse(event.data);
                 const binancePrice = parseFloat(message.c);
-                setLastBinancePrice(binancePrice);
+                setBinancePrice(binancePrice);
             };
 
             ws.onerror = (error) => {
@@ -39,9 +39,9 @@ const BinanceWebSocket = ({setLastBinancePrice}) => {
         };
         
         fetchData();
-    }, [setLastBinancePrice]);
+    }, [setBinancePrice]);
 
-    return null; // 또는 필요에 따라 다른 JSX를 반환할 수 있습니다.
+    return null;
 };
 
 export default BinanceWebSocket;

@@ -1,16 +1,10 @@
-import React, { useState } from 'react';
-import { Navbar, Container, Nav, Row, Col, Table } from 'react-bootstrap';
-import UpbitWebSoket from './WebSoket/UpbitWebSoket';
-import BinanceWebSocket from './WebSoket/BinanceWebSoket';
+import React from 'react';
+import { Navbar, Container, Nav, Row, Col } from 'react-bootstrap';
+import CenterInpo from './Components/CenterInfo';
 import './App.css';
 
 
 function App() {
-  const [latestTradePrice, setLatestTradePrice] = useState(null);
-  const [lastCoinName, setLastCoinName] = useState(null);
-  const [lastTradePrice24, setLastTradePrice24] = useState(null);
-  const [deyOfDey, setDeyOfDey] = useState(null);
-  const [lastBinancePrice, setLastBinancePrice] = useState(null);
 
   return (
     <div className="App">
@@ -50,47 +44,7 @@ function App() {
                 <Col>광고배너</Col>
               </Row>
             </Container>
-            <Container>
-              <Row className='colGlobal centerInpo'>
-                <Col>
-                  <Table striped bordered hover variant="dark">
-                    <thead>
-                      <tr className='table-cell'>
-                        <th style={{width: '100px'}}>이름</th>
-                        <th>바이낸스 현재가</th>
-                        <th>업비트 현재가</th>
-                        <th>누적거래량</th>
-                        <th>전일대비</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className='table-cell'>
-                        <td className='logos'>
-                          <div className='logoLeft'>
-                            {lastCoinName ? (
-                              <img className='logoImg'
-                                src={`https://static.upbit.com/logos/${lastCoinName}.png`}
-                                alt={`${lastCoinName} logo`}
-                                style={{ width: '18px', height: '18px', marginBottom: '7%'}} // 이미지 크기 조절 예시
-                              />
-                            ) : (
-                              ''
-                            )}
-                          </div>
-                          <div className='logoRight'>
-                            <span>{lastCoinName || ''}</span>
-                          </div>
-                        </td>
-                        <td>{lastBinancePrice !== null && !isNaN(lastBinancePrice) ? `${lastBinancePrice}달러` : '달러'}</td>
-                        <td>{latestTradePrice !== null ? `${latestTradePrice}원` : ''}</td>
-                        <td>{lastTradePrice24 !== null ? `${lastTradePrice24}억` : ''}</td>
-                        <td>{deyOfDey !== null ? `${deyOfDey}%` : ''}</td>
-                      </tr>
-                    </tbody>
-                  </Table>
-                </Col>
-              </Row>
-            </Container>
+            <CenterInpo />
             <Container>
               <Row className='colGlobal banner'>
                 <Col>광고배너</Col>
@@ -111,21 +65,11 @@ function App() {
           <Col>FootBanner</Col>
         </Row>
       </Container>
-      <div style={{ background: 'grey'}}>
-        <p style={{ marginBottom: '0'}}>All content © Cryprice. 2024. All rights reserved. contact : roomescape5519@gmail.com</p>
+      <div style={{ background: 'grey' }}>
+        <p style={{ marginBottom: '0' }}>All content © Cryprice. 2024. All rights reserved. contact : roomescape5519@gmail.com</p>
       </div>
-    
-      <UpbitWebSoket
-        setLatestTradePrice={setLatestTradePrice}
-        setLastCoinName={setLastCoinName}
-        setLastTradePrice24={setLastTradePrice24}
-        setDeyOfDey={setDeyOfDey}
-      />
-      <BinanceWebSocket 
-        setLastBinancePrice={setLastBinancePrice}
-      />
     </div>
   );
-}
+};
 
 export default App;

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-const UpbitWebSoket = ({ setLatestTradePrice, setLastCoinName, setLastTradePrice24, setDeyOfDey }) => {
+const UpbitWebSoket = ({ setCoinName, setUpbitPrice, setAccTradePrice24, setDayOverDay }) => {
     useEffect(() => {
         const fetchData = () => {
             const ws = new WebSocket(`wss://api.upbit.com/websocket/v1`);
@@ -16,16 +16,16 @@ const UpbitWebSoket = ({ setLatestTradePrice, setLastCoinName, setLastTradePrice
                             const message = JSON.parse(reader.result);
                             const coinName = message.code;
                             const extractedCoinName = coinName.replace("KRW-", "");
-                            const tradePrice = message.trade_price;
+                            const upbitPrice = message.trade_price;
                             const accTradePrice24 = message.acc_trade_price_24h
                             const billion = accTradePrice24 / 100000000;
                             const formattedBillion = billion.toLocaleString('ko-KR', { maximumFractionDigits: 0 });
                             const dod = (message.signed_change_rate) * 100;
                             const dodFormatted = dod.toFixed(2);
-                            setLastCoinName(extractedCoinName);
-                            setLatestTradePrice(tradePrice);
-                            setLastTradePrice24(formattedBillion);
-                            setDeyOfDey(dodFormatted);
+                            setCoinName(extractedCoinName);
+                            setUpbitPrice(upbitPrice);
+                            setAccTradePrice24(formattedBillion);
+                            setDayOverDay(dodFormatted);
                         } catch (error) {
                             console.error("Error parsing Blob data:", error);
                         }
@@ -50,7 +50,7 @@ const UpbitWebSoket = ({ setLatestTradePrice, setLastCoinName, setLastTradePrice
         };
 
         fetchData();
-    }, [setLatestTradePrice, setLastCoinName, setLastTradePrice24, setDeyOfDey]);
+    }, [setUpbitPrice, setCoinName, setAccTradePrice24, setDayOverDay]);
 
 };
 
