@@ -1,31 +1,121 @@
 .App {
   text-align: center;
+  font-family: "Oswald", sans-serif;
+  background-color: black;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+html, body {
+  height: 100%;
+  background-color: black;
+  margin: 0;
+  padding: 0;
+}
+
+.App .col {
+  background-color: rgb(39, 39, 39);
+  color: white;
+}
+
+.App .nav-bar {
+  padding-top: 0;
+}
+
+.colGlobal .col{
+  border-radius: 5px;
+  margin-left: 5px;
+}
+
+.centerInpo .col{
+  padding: 5px;
+  border-radius: 5px;
+  margin-left: 5px;
+}
+
+.sideInpo .col{
+  border-radius: 5px;
+}
+.container {
+  padding-top: 1%;
+}
+.Navbar {
+  font-family: "Noto Sans KR", sans-serif;
+}
+.centerContainer {
+  padding: 0;
+}
+.sideContainer {
+  padding-left: 0px;
+}
+.sideContainer .container {
+  padding-right: 3%;
+  padding-top: 3%;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.fixedContainer {
+  position: sticky;
+  top: 0;
+  padding-top: 1%;
+  padding-bottom: 1%;
+  z-index: 1000; /* 다른 요소들 위에 오도록 설정 */
+}
+.sideBanner {
+  padding-top: 3%;
+}
+
+.footBanner {
+  padding-top: 1%;
+}
+.footBanner .col {
+  height: 280px;
+}
+
+.chatbox {
+  position: sticky;
+  top: 0;
+  width: 99%;
+  height: 690px;
+  background: black;
+  color: white;
+  z-index: 1000; /* 다른 요소들 위에 오도록 설정 */
+}
+
+.center4Inpo .col{
+  height: 80px;
+}
+
+.banner .col{
+  height: 250px;
+}
+
+.centerInpo .col {
+  height: 100vh;
+}
+
+.logos {
+  display: flex;
+}
+.logoLeft {
+  float: left;
+  width: 50%;
+  align-items: center;
+}
+
+.logoRight {
+  float: right;
+  width: 50%;
+}
+
+
+table {
+  text-align: right;
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
   }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
 }
 
 @keyframes App-logo-spin {
