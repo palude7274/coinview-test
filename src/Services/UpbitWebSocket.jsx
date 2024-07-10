@@ -1,11 +1,20 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { useCoinData } from '../Context/CoinContext';
 
-const UpbitWebSoket = ({ setCoinName, setUpbitPrice, setAccTradePrice24, setDayOverDay }) => {
+const UpbitWebSocket = () => {
+    const { coinNameData, setUpbitRealtimeData } = useCoinData();
+    const tempDataRef = useRef({});
+
     useEffect(() => {
         const fetchData = () => {
             const ws = new WebSocket(`wss://api.upbit.com/websocket/v1`);
+
             ws.onopen = () => {
-                ws.send('[{"ticket":"UNIQUE_TICKET_ID"},{"type":"ticker","codes":["KRW-BTC"]}]');
+                const codes = coinNameData.map(coin => `KRW-${coin}`);
+                ws.send(JSON.stringify([
+                    { ticket: "UNIQUE_TICKET_ID" },
+                    { type: "ticker", codes: codes }
+                ]));
             };
 
             ws.onmessage = (event) => {
@@ -14,18 +23,21 @@ const UpbitWebSoket = ({ setCoinName, setUpbitPrice, setAccTradePrice24, setDayO
                     reader.onload = function () {
                         try {
                             const message = JSON.parse(reader.result);
-                            const coinName = message.code;
-                            const extractedCoinName = coinName.replace("KRW-", "");
+                            const coinName = message.code.replace("KRW-", "");
                             const upbitPrice = message.trade_price;
-                            const accTradePrice24 = message.acc_trade_price_24h
+                            const accTradePrice24 = message.acc_trade_price_24h;
                             const billion = accTradePrice24 / 100000000;
                             const formattedBillion = billion.toLocaleString('ko-KR', { maximumFractionDigits: 0 });
                             const dod = (message.signed_change_rate) * 100;
                             const dodFormatted = dod.toFixed(2);
-                            setCoinName(extractedCoinName);
-                            setUpbitPrice(upbitPrice);
-                            setAccTradePrice24(formattedBillion);
-                            setDayOverDay(dodFormatted);
+
+                            // 임시 객체에 데이터 저장
+                            tempDataRef.current[coinName] = {
+                                upbitPrice: upbitPrice,
+                                accTradePrice24: formattedBillion,
+                                dayOverDay: dodFormatted
+                            };
+
                         } catch (error) {
                             console.error("Error parsing Blob data:", error);
                         }
@@ -49,9 +61,26 @@ const UpbitWebSoket = ({ setCoinName, setUpbitPrice, setAccTradePrice24, setDayO
             };
         };
 
-        fetchData();
-    }, [setUpbitPrice, setCoinName, setAccTradePrice24, setDayOverDay]);
+        if (coinNameData.length > 0) {
+            fetchData();
+        }
 
+        // 2초마다 데이터 업데이트
+        const intervalId = setInterval(() => {
+            setUpbitRealtimeData(prevData => ({
+                ...prevData,
+                ...tempDataRef.current
+            }));
+        }, 3000);
+
+        // 컴포넌트 언마운트 시 정리
+        return () => {
+            clearInterval(intervalId);
+        };
+
+    }, [coinNameData, setUpbitRealtimeData]);
+
+    return null;
 };
 
-export default UpbitWebSoket;
+export default UpbitWebSocket;

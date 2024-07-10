@@ -1,7 +1,10 @@
 import { useEffect } from 'react';
 import axios from 'axios';
+import { useCoinData } from '../Context/CoinContext';
 
-const ExchangeRate = ({setExchangeKRW}) => {
+const ExchangeRate = () => {
+    const { setExchangeKRW } = useCoinData();
+
     useEffect(() => {
         const currentDate = new Date().toISOString().slice(0, 10);
         const url = `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@${currentDate}/v1/currencies/usd.json`;
