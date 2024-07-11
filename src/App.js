@@ -7,16 +7,18 @@ import BinanceWebSocket from './Services/BinanceWebSocket'; // src/Services/Bina
 import UpbitWebSocket from './Services/UpbitWebSocket'; // src/Services/UpbitWebSocket.jsx 경로
 import CoinNameData from './Services/CoinNameData'; // src/Services/CoinNameData.jsx 경로
 import ExchangeRate from './Services/ExchangeRate'; // src/Services/ExchangeRate.jsx 경로
+import BinanceValidCoins from './Services/BinanceValidCoins';
 
 function App() {
   return (
     <CoinDataProvider>
       <CoinNameData />
+      <BinanceValidCoins />
       <ExchangeRate />
       <BinanceWebSocket />
       <UpbitWebSocket />
       <div className="App">
-        <Navbar bg="dark" variant="dark">
+        <Navbar className="custom-navbar">
           <Container className='nav-bar'>
             <Navbar.Brand href="#home">버블체크</Navbar.Brand>
             <Nav className="me-auto">

@@ -4,14 +4,17 @@ const CoinContext = createContext();
 
 export const CoinDataProvider = ({ children }) => {
     const [coinNameData, setCoinNameData] = useState([]);
+    const [validBinanceCoins, setValidBinanceCoins] = useState([]);
     const [binanceRealtimeData, setBinanceRealtimeData] = useState({});
     const [upbitRealtimeData, setUpbitRealtimeData] = useState({});
-    const [exchangeKRW , setExchangeKRW] = useState(null);
+    const [exchangeKRW, setExchangeKRW] = useState(null);
 
     return (
         <CoinContext.Provider value={{
             coinNameData,
             setCoinNameData,
+            validBinanceCoins,
+            setValidBinanceCoins,
             exchangeKRW,
             setExchangeKRW,
             binanceRealtimeData,

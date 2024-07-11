@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from "react";
-import { Container, Row, Col, Table } from 'react-bootstrap';
-import { useCoinData } from '../Context/CoinContext'; 
+import { Container, Row, Col } from 'react-bootstrap';
+import { useCoinData } from '../Context/CoinContext';
 
 const CoinList = () => {
     const { coinNameData, exchangeKRW, binanceRealtimeData, upbitRealtimeData } = useCoinData();
@@ -21,7 +21,7 @@ const CoinList = () => {
     // 배경색 변경 애니메이션을 적용하는 함수
     const flashAnimation = (element, isIncrease) => {
         // 증가했을 때는 옅은 파란색, 감소했을 때는 옅은 빨간색 사용
-        const color = isIncrease ? '#e6f3ff' : '#ffe6e6';
+        const color = isIncrease ? '#1b1a8977' : 'rgba(255, 0, 0, 0.2)';
         element.style.transition = 'background-color 0.5s';
         element.style.backgroundColor = color;
         setTimeout(() => {
@@ -34,7 +34,7 @@ const CoinList = () => {
             const fields = ['binancePrice', 'upbitPrice', 'dayOverDay', 'accTradePrice24', 'kimchi'];
             fields.forEach((field) => {
                 let currentValue, prevValue;
-                
+
                 // 각 필드에 대한 현재 값 계산
                 if (field === 'kimchi') {
                     const currentUpbitPrice = upbitRealtimeData[coinName]?.upbitPrice || 0;
@@ -47,7 +47,7 @@ const CoinList = () => {
                 }
 
                 prevValue = prevDataRef.current[coinName]?.[field];
-                
+
                 // 이전 값과 현재 값이 다를 경우 애니메이션 적용
                 if (prevValue !== undefined && currentValue !== prevValue) {
                     const cellRef = getCellRef(coinName, field);
@@ -62,17 +62,37 @@ const CoinList = () => {
                     prevDataRef.current[coinName] = {};
                 }
                 prevDataRef.current[coinName][field] = currentValue;
+
+                // 각 셀의 Ref 가져오기
+                const cellRef = getCellRef(coinName, field);
+
+                // 전일대비와 김프 색상 클래스 추가
+                if (field === 'dayOverDay') {
+                    if (currentValue > 0) {
+                        cellRef.current?.classList.add('blue-text');
+                    } else if (currentValue < 0) {
+                        cellRef.current?.classList.add('red-text');
+                    }
+                } else if (field === 'kimchi') {
+                    if (currentValue > 0) {
+                        cellRef.current?.classList.add('blue-text');
+                    } else if (currentValue < 0) {
+                        cellRef.current?.classList.add('red-text');
+                    }
+                }
+
+
             });
         });
     }, [coinNameData, binanceRealtimeData, upbitRealtimeData, exchangeKRW]);
 
     return (
         <Container>
-            <Row>
+            <Row className="colGlobal">
                 <Col>
-                    <Table striped bordered hover>
+                    <table className="customTable">
                         <thead>
-                            <tr className='table-cell'>
+                            <tr>
                                 <th style={{ width: '70px' }}>코인</th>
                                 <th style={{ width: '150px' }}>바이낸스($)</th>
                                 <th style={{ width: '150px' }}>업비트(₩)</th>
@@ -94,7 +114,7 @@ const CoinList = () => {
                                     : '-';
 
                                 return (
-                                    <tr className='table-cell' key={coinName}>
+                                    <tr key={coinName}>
                                         <td className='logos'>
                                             <div className='logoLeft'>
                                                 {coinName ? (
@@ -121,7 +141,7 @@ const CoinList = () => {
                                 );
                             })}
                         </tbody>
-                    </Table>
+                    </table>
                 </Col>
             </Row>
         </Container>

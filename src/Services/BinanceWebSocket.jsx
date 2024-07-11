@@ -23,18 +23,22 @@ const BinanceWebSocket = () => {
                 try {
                     const message = JSON.parse(event.data);
 
-                    // Check if message has necessary fields
+                    // 구독 확인 메시지 처리
+                    if (message.result === null && message.id) {
+                        console.log("Subscription confirmed:", message);
+                        return;
+                    }
+
+                    // 실제 티커 데이터 처리
                     if (message && message.s && message.c) {
                         const coinName = message.s.replace("USDT", "");
                         const binancePrice = parseFloat(message.c);
 
-                        // 임시 객체에 데이터 저장
                         tempDataRef.current[coinName] = {
                             binancePrice: binancePrice
                         };
-
                     } else {
-                        console.error("Invalid message format:", message);
+                        console.log("Received message:", message);
                     }
                 } catch (error) {
                     console.error("Error processing message:", error);
@@ -65,7 +69,7 @@ const BinanceWebSocket = () => {
                 ...prevData,
                 ...tempDataRef.current
             }));
-        }, 3000);
+        }, 2000);
 
         // 컴포넌트 언마운트 시 정리
         return () => {

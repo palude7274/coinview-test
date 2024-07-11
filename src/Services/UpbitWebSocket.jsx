@@ -71,7 +71,7 @@ const UpbitWebSocket = () => {
                 ...prevData,
                 ...tempDataRef.current
             }));
-        }, 3000);
+        }, 2000);
 
         // 컴포넌트 언마운트 시 정리
         return () => {
