@@ -1,15 +1,17 @@
-import React from 'react';
-import { Navbar, Container, Nav, Row, Col } from 'react-bootstrap';
-import { CoinDataProvider } from './Context/CoinContext'; // src/Context/CoinContext.jsx 경로
-import CoinList from './Components/CoinList'; // src/Components/CoinList.jsx 경로
+import React, { useState } from 'react';
+import { Navbar, Container, Nav, Row, Col, Button } from 'react-bootstrap';
+import { CoinDataProvider } from './Context/CoinContext'; 
+import CoinList from './Components/CoinList'; 
 import './App.css';
-import BinanceWebSocket from './Services/BinanceWebSocket'; // src/Services/BinanceWebSocket.jsx 경로
-import UpbitWebSocket from './Services/UpbitWebSocket'; // src/Services/UpbitWebSocket.jsx 경로
-import CoinNameData from './Services/CoinNameData'; // src/Services/CoinNameData.jsx 경로
-import ExchangeRate from './Services/ExchangeRate'; // src/Services/ExchangeRate.jsx 경로
+import BinanceWebSocket from './Services/BinanceWebSocket'; 
+import UpbitWebSocket from './Services/UpbitWebSocket'; 
+import CoinNameData from './Services/CoinNameData'; 
+import ExchangeRate from './Services/ExchangeRate'; 
 import BinanceValidCoins from './Services/BinanceValidCoins';
 
 function App() {
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
   return (
     <CoinDataProvider>
       <CoinNameData />
@@ -28,53 +30,53 @@ function App() {
             </Nav>
           </Container>
         </Navbar>
-        <Container fluid>
+        <Container>
           <Row>
-            <Col className='sideContainer' style={{ background: 'black' }} xs={2}>
+            <Col className='sideContainer' style={{ background: 'black'}}>
               <Container className="fixedContainer">
-                <Row className='sideInpo' style={{ height: '250px' }}>
-                  <Col>정보란1</Col>
-                </Row>
-                <Row className='sideBanner' style={{ height: 'calc(100vh - 250px)' }}>
-                  <Col>정보란 또는 광고</Col>
+                <Row className='sideBanner' style={{ height: '100vh' }}>
+                  <Col>왼쪽배너</Col>
                 </Row>
               </Container>
             </Col>
-            <Col className="centerContainer" style={{ background: 'black', paddingBottom: '0px' }} xs={7}>
+            <Col className='centerInfo' style={{ background: 'black', paddingBottom: '0px'}} xs={8}>
               <Container className="fixedContainer" style={{ background: 'black' }}>
-                <Row className='colGlobal center4Inpo'>
-                  <Col>Inner 1</Col>
-                  <Col>Inner 2</Col>
-                  <Col>Inner 3</Col>
-                  <Col>Inner 4</Col>
+                <Row className='colGlobal center4Info'>
+                  <Col style={{ margin: '0 5px 0 0' }}>Inner 1</Col>
+                  <Col style={{ margin: '0 5px' }}>Inner 2</Col>
+                  <Col style={{ margin: '0 5px' }}>Inner 3</Col>
+                  <Col style={{ margin: '0 0 0 5px' }}>Inner 4</Col>
                 </Row>
               </Container>
-              <Container style={{ paddingTop: '0' }}>
+              <Container className='topBanner'>
                 <Row className='colGlobal banner'>
-                  <Col>광고배너</Col>
+                  <Col>상단배너</Col>
                 </Row>
-              </Container>
-              <CoinList />
-              <Container>
+              </Container >
+              <CoinList isChatOpen={isChatOpen}/>
+              <Container className='bottomBanner'>
                 <Row className='colGlobal banner'>
-                  <Col>광고배너</Col>
+                  <Col>하단배너</Col>
                 </Row>
               </Container>
             </Col>
             <Col className='sideContainer' style={{ background: 'black' }}>
-              <Container className="chatbox">
-                <Row>
-                  <Col style={{ height: '680px' }}>채팅창</Col>
+              <Container className="fixedContainer">
+                <Row className='sideBanner' style={{ height: '100vh' }}>
+                  <Col>오른쪽배너</Col>
                 </Row>
               </Container>
             </Col>
           </Row>
-        </Container>
-        <Container className='footBanner' fluid style={{ background: 'black' }}>
-          <Row>
+          <Row className='footBanner'>
             <Col>FootBanner</Col>
           </Row>
         </Container>
+        <div className={`chat-window ${isChatOpen ? 'open' : ''}`}>
+          <span>채팅창</span>
+          <Button onClick={() => setIsChatOpen(false)} className="close-chat-btn">X</Button>
+        </div>
+        <Button onClick={() => setIsChatOpen(true)} className="open-chat-btn">채팅창</Button>
         <div style={{ background: 'grey' }}>
           <p style={{ marginBottom: '0' }}>All content © Cryprice. 2024. All rights reserved. contact : roomescape5519@gmail.com</p>
         </div>

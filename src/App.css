@@ -1,10 +1,16 @@
+* {
+  box-sizing: border-box;
+}
+
+
 .App {
   text-align: center;
   font-family: "Oswald", sans-serif;
   background-color: black;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   background-color: black;
   margin: 0;
@@ -18,6 +24,7 @@ html, body {
 
 .App .nav-bar {
   padding-top: 0;
+  padding-left: 80px;
 }
 
 .custom-navbar {
@@ -30,7 +37,7 @@ html, body {
   color: rgb(229, 229, 235);
 }
 
-.navbar .navbar-brand{
+.navbar .navbar-brand {
   color: rgb(229, 229, 235);
 }
 
@@ -38,26 +45,29 @@ html, body {
   color: rgb(128, 171, 209);
 }
 
-.navbar-nav .nav-link.active{
+.navbar-nav .nav-link.active {
   color: rgba(128, 171, 209, 0.757);
 }
 
 
-.colGlobal .col{
+.colGlobal .col {
   border-radius: 5px;
-  margin-left: 5px;
 }
 
-.centerInpo .col{
+.centerInfo .col {
   padding: 5px;
   border-radius: 5px;
-  margin-left: 5px;
 }
 
 .customTable {
   width: 100%;
   margin-top: 1%;
   border-collapse: collapse;
+  transition: width 0.5s;
+}
+
+.narrow {
+  width: calc(100% - 200px);
 }
 
 .customTable tr {
@@ -79,33 +89,42 @@ html, body {
 }
 
 .customTable tr:nth-child(odd) {
-  background-color: hwb(214 10% 88%) /* 홀수 행 배경색 */
+  background-color: hwb(214 10% 88%)
+    /* 홀수 행 배경색 */
 }
 
 .customTable tr:nth-child(even) {
-  background-color: hwb(213 7% 85%) /* 짝수 행 배경색, 약간 밝게 조정 */
+  background-color: hwb(213 7% 85%)
+    /* 짝수 행 배경색, 약간 밝게 조정 */
 }
 
-.sideInpo .col{
+.sideInpo .col {
   border-radius: 5px;
 }
-.container {
+
+.container .topBanner {
+  padding-bottom: 1%;
+}
+
+.container .bottomBanner {
   padding-top: 1%;
 }
+
 .Navbar {
   font-family: "Noto Sans KR", sans-serif;
 }
+
 .centerContainer {
   padding: 0;
 }
+
 .sideContainer {
   padding-left: 0px;
+  padding-right: 0px;
 }
+
 .sideContainer .container {
-  padding-right: 3%;
   padding-top: 3%;
-  margin-left: 5px;
-  margin-right: 5px;
 }
 
 .fixedContainer {
@@ -113,44 +132,35 @@ html, body {
   top: 0;
   padding-top: 1%;
   padding-bottom: 1%;
-  z-index: 1000; /* 다른 요소들 위에 오도록 설정 */
+  z-index: 1000;
+  /* 다른 요소들 위에 오도록 설정 */
 }
+
 .sideBanner {
-  padding-top: 3%;
+  padding-top: 0;
 }
 
 .footBanner {
   padding-top: 1%;
 }
+
 .footBanner .col {
   height: 280px;
 }
 
-.chatbox {
-  position: sticky;
-  top: 0;
-  width: 99%;
-  height: 690px;
-  background: black;
-  color: white;
-  z-index: 1000; /* 다른 요소들 위에 오도록 설정 */
-}
-
-.center4Inpo .col{
+.center4Info .col {
   height: 80px;
+  justify-content: space-between;
 }
 
-.banner .col{
+.banner .col {
   height: 250px;
-}
-
-.centerInpo .col {
-  height: 100vh;
 }
 
 .logos {
   display: flex;
 }
+
 .logoLeft {
   float: left;
   width: 30%;
@@ -162,13 +172,15 @@ html, body {
   width: 70%;
 }
 
-.kimchies{
+.kimchies {
   display: flex;
 }
+
 .kimchiLeft {
   float: left;
   width: 50%;
 }
+
 .kimchiRight {
   float: right;
   width: 50%;
@@ -176,15 +188,51 @@ html, body {
 
 table {
   text-align: right;
-  
+
 }
 
 .blue-text {
-  color: rgba(165, 165, 255, 0.901) !important; /* !important를 사용하여 우선 순위를 높이는 경우가 있을 수 있습니다. */
+  color: rgba(165, 165, 255, 0.901) !important;
+  /* !important를 사용하여 우선 순위를 높이는 경우가 있을 수 있습니다. */
 }
 
 .red-text {
   color: rgb(255, 0, 0) !important;
+}
+
+.chat-window {
+  position: fixed;
+  bottom: 0px;
+  right: 7%;
+  width: 350px;
+  height: 0px;
+  background-color: white;
+  border: 1px solid #000000;
+  border-radius: 5px 5px 0 0;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 1002;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  transition: 0.3s ease;
+}
+
+.chat-window.open {
+  height: 655px; /* Full height when open */
+}
+
+.close-chat-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.open-chat-btn {
+  position: fixed;
+  bottom: 0px;
+  right: 7%;
+  width: 350px;
+  z-index: 1001;
 }
 
 
@@ -194,10 +242,51 @@ table {
   }
 }
 
+@media (min-width: 768px) {
+  .container, .container-md, .container-sm {
+      max-width: 1000px;
+  }
+}
+
+@media (min-width: 992px) {
+
+  .container,
+  .container-lg,
+  .container-md,
+  .container-sm {
+    max-width: 1200px;
+  }
+}
+
+@media (min-width: 1200px) {
+  
+  .container,
+  .container-lg,
+  .container-md,
+  .container-sm,
+  .container-xl {
+    max-width: 1350px;
+  }
+}
+
+@media (min-width: 1400px) {
+
+  .container,
+  .container-lg,
+  .container-md,
+  .container-sm,
+  .container-xl,
+  .container-xxl {
+    max-width: 1450px !important;
+  }
+}
+
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
   }
+  
   to {
     transform: rotate(360deg);
   }

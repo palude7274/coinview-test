@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from "react";
 import { Container, Row, Col } from 'react-bootstrap';
 import { useCoinData } from '../Context/CoinContext';
 
-const CoinList = () => {
+const CoinList = ( { isChatOpen }) => {
     const { coinNameData, exchangeKRW, binanceRealtimeData, upbitRealtimeData } = useCoinData();
     const prevDataRef = useRef({}); // 이전 데이터를 저장하기 위한 ref
     const cellRefs = useRef({}); // 각 셀에 대한 ref를 저장하기 위한 ref
@@ -87,18 +87,18 @@ const CoinList = () => {
     }, [coinNameData, binanceRealtimeData, upbitRealtimeData, exchangeKRW]);
 
     return (
-        <Container>
+        <Container className='centerCoinList'>
             <Row className="colGlobal">
                 <Col>
-                    <table className="customTable">
+                    <table className={`customTable ${isChatOpen ? 'narrow' : ''}`}>
                         <thead>
                             <tr>
-                                <th style={{ width: '70px' }}>코인</th>
-                                <th style={{ width: '150px' }}>바이낸스($)</th>
-                                <th style={{ width: '150px' }}>업비트(₩)</th>
-                                <th style={{ width: '100px' }}>전일대비(%)</th>
-                                <th style={{ width: '100px' }}>거래량(억)</th>
-                                <th style={{ width: '200px' }}>김프(%)</th>
+                                <th>코인</th>
+                                <th>바이낸스($)</th>
+                                <th>업비트(₩)</th>
+                                <th>전일대비(%)</th>
+                                <th>거래량(억)</th>
+                                <th>김프(%)</th>
                             </tr>
                         </thead>
                         <tbody>
