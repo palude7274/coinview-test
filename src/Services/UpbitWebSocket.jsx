@@ -4,10 +4,12 @@ import { useCoinData } from '../Context/CoinContext';
 const UpbitWebSocket = () => {
     const { coinNameData, setUpbitRealtimeData } = useCoinData();
     const tempDataRef = useRef({});
+    const wsRef = useRef(null);
 
     useEffect(() => {
         const fetchData = () => {
             const ws = new WebSocket(`wss://api.upbit.com/websocket/v1`);
+            wsRef.current = ws; // WebSocket 참조 저장
 
             ws.onopen = () => {
                 const codes = coinNameData.map(coin => `KRW-${coin}`);
@@ -73,9 +75,17 @@ const UpbitWebSocket = () => {
             }));
         }, 2000);
 
+        // 핑-퐁 메커니즘
+        const pingIntervalId = setInterval(() => {
+            if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+                wsRef.current.send(JSON.stringify({ type: "ping" })); // 핑 메시지 전송
+            }
+        }, 30000); // 30초마다 핑 전송
+
         // 컴포넌트 언마운트 시 정리
         return () => {
             clearInterval(intervalId);
+            clearInterval(pingIntervalId);
         };
 
     }, [coinNameData, setUpbitRealtimeData]);
