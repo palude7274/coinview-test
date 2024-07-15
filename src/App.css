@@ -64,7 +64,9 @@ body {
   margin-top: 1%;
   border-collapse: collapse;
   transition: width 0.5s;
+  table-layout: fixed;
 }
+
 
 .narrow {
   width: calc(100% - 200px);

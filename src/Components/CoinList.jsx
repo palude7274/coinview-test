@@ -1,8 +1,10 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useMemo } from "react";
 import { Container, Row, Col } from 'react-bootstrap';
 import { useCoinData } from '../Context/CoinContext';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 
-const CoinList = ( { isChatOpen }) => {
+const CoinList = ({ isChatOpen }) => {
     const { coinNameData, exchangeKRW, binanceRealtimeData, upbitRealtimeData } = useCoinData();
     const prevDataRef = useRef({}); // 이전 데이터를 저장하기 위한 ref
     const cellRefs = useRef({}); // 각 셀에 대한 ref를 저장하기 위한 ref
@@ -29,8 +31,35 @@ const CoinList = ( { isChatOpen }) => {
         }, 500);
     };
 
+    // 숫자에 천 단위 구분자를 추가하는 함수 (소수점 유지)
+    const formatNumber = (number) => {
+        if (number === '-' || number === undefined) return '-';
+        const parts = number.toString().split('.');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return parts.join('.');
+    };
+
+    // 김프 계산 함수
+    const calculateKimchi = (upbitPrice, binancePrice) => {
+        if (!upbitPrice || !binancePrice || !exchangeKRW || binancePrice === 0) {
+            return '-';
+        }
+        const kimchi = ((upbitPrice - binancePrice * exchangeKRW) / (binancePrice * exchangeKRW)) * 100;
+        return isNaN(kimchi) ? '-' : kimchi.toFixed(2);
+    };
+
+    // 코인 데이터를 업비트 가격 내림차순으로 정렬
+    const sortedCoinData = useMemo(() => {
+        return [...coinNameData].sort((a, b) => {
+            const priceA = upbitRealtimeData[a]?.upbitPrice || 0;
+            const priceB = upbitRealtimeData[b]?.upbitPrice || 0;
+            return priceB - priceA;
+        });
+    }, [coinNameData, upbitRealtimeData]);
+
+
     useEffect(() => {
-        coinNameData.forEach((coinName) => {
+        sortedCoinData.forEach((coinName) => {
             const fields = ['binancePrice', 'upbitPrice', 'dayOverDay', 'accTradePrice24', 'kimchi'];
             fields.forEach((field) => {
                 let currentValue, prevValue;
@@ -84,7 +113,7 @@ const CoinList = ( { isChatOpen }) => {
 
             });
         });
-    }, [coinNameData, binanceRealtimeData, upbitRealtimeData, exchangeKRW]);
+    }, [sortedCoinData, binanceRealtimeData, upbitRealtimeData, exchangeKRW]);
 
     return (
         <Container className='centerCoinList'>
@@ -92,6 +121,40 @@ const CoinList = ( { isChatOpen }) => {
                 <Col>
                     <table className={`customTable ${isChatOpen ? 'narrow' : ''}`}>
                         <thead>
+                            <tr>
+                                <th colSpan="6" style={{ padding: 0 }}>
+                                    <div style={{ display: 'flex', width: '100%', textAlign: 'center', paddingBottom: '10px' }}>
+                                        <span style={{ flex: 1 }}>전체 코인</span>
+                                        <span style={{ flex: 1 }}>즐겨 찾기</span>
+                                        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', width: '100%', maxWidth: '200px' }}>
+                                                <FontAwesomeIcon
+                                                    icon={faMagnifyingGlass}
+                                                    style={{
+                                                        color: 'gray',
+                                                        backgroundColor: 'white',
+                                                        padding: '5px',
+                                                        borderRadius: '5px 0 0 5px'
+                                                    }}
+                                                />
+                                                <input
+                                                    style={{
+                                                        flex: 1,
+                                                        minWidth: '0',
+                                                        paddingLeft: '8px',
+                                                        paddingRight: '8px',
+                                                        marginRight: '5px',
+                                                        border: 'none',
+                                                        outline: 'none',
+                                                        borderRadius: '0 5px 5px 0',
+                                                        textAlign:'left' }}
+                                                    placeholder="코인 검색"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </th>
+                            </tr>
                             <tr>
                                 <th>코인</th>
                                 <th>바이낸스($)</th>
@@ -102,16 +165,14 @@ const CoinList = ( { isChatOpen }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {coinNameData.map((coinName) => {
+                            {sortedCoinData.map((coinName) => {
                                 const binanceData = binanceRealtimeData[coinName] || {};
                                 const upbitData = upbitRealtimeData[coinName] || {};
-                                const binancePrice = binanceData.binancePrice || '-';
-                                const upbitPrice = upbitData.upbitPrice || '-';
-                                const dayOverDay = upbitData.dayOverDay || '-';
+                                const binancePrice = formatNumber(binanceData.binancePrice);
+                                const upbitPrice = formatNumber(upbitData.upbitPrice);
+                                const dayOverDay = formatNumber(upbitData.dayOverDay);
                                 const accTradePrice24 = upbitData.accTradePrice24 || '-';
-                                const kimchi = (upbitPrice !== '-' && binancePrice !== '-')
-                                    ? ((upbitPrice - binancePrice * exchangeKRW) / (binancePrice * exchangeKRW) * 100).toFixed(2)
-                                    : '-';
+                                const kimchi = calculateKimchi(upbitData.upbitPrice, binanceData.binancePrice);
 
                                 return (
                                     <tr key={coinName}>
@@ -144,7 +205,7 @@ const CoinList = ( { isChatOpen }) => {
                     </table>
                 </Col>
             </Row>
-        </Container>
+        </Container >
     );
 };
 

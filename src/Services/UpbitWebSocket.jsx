@@ -80,7 +80,7 @@ const UpbitWebSocket = () => {
             if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
                 wsRef.current.send(JSON.stringify({ type: "ping" })); // 핑 메시지 전송
             }
-        }, 30000); // 30초마다 핑 전송
+        }, 60000); // 60초마다 핑 전송
 
         // 컴포넌트 언마운트 시 정리
         return () => {
