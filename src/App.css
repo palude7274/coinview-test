@@ -38,11 +38,11 @@ body {
 }
 
 .navbar .navbar-brand {
-  color: rgb(229, 229, 235);
+  color: #e5e5eb;
 }
 
 .navbar :hover {
-  color: rgb(128, 171, 209);
+  color: #80abd1;
 }
 
 .navbar-nav .nav-link.active {
@@ -64,12 +64,10 @@ body {
   margin-top: 1%;
   border-collapse: collapse;
   transition: width 0.5s;
-  table-layout: fixed;
 }
 
-
 .narrow {
-  width: calc(100% - 200px);
+  width: calc(100% - (350px - (350px * 0.46)));
 }
 
 .customTable tr {
@@ -77,11 +75,13 @@ body {
 }
 
 .customTable th {
+  width: calc(100% / 6);
   color: #d1ccccf5;
   background-color: hwb(214 7% 86%);
   border: none;
   padding: 5px;
-  padding-bottom: 2%;
+  padding-top: 1%;
+  padding-bottom: 1%;
 }
 
 .customTable td {
@@ -89,6 +89,7 @@ body {
   border: none;
   padding: 5px;
 }
+
 
 .customTable tr:nth-child(odd) {
   background-color: hwb(214 10% 88%)
@@ -165,13 +166,13 @@ body {
 
 .logoLeft {
   float: left;
-  width: 30%;
+  width: 40%;
   align-items: center;
 }
 
 .logoRight {
-  float: right;
-  width: 70%;
+  float: left;
+  width: 50%;
 }
 
 .kimchies {
@@ -194,7 +195,7 @@ table {
 }
 
 .blue-text {
-  color: rgba(165, 165, 255, 0.901) !important;
+  color: #a5a5ffe6 !important;
   /* !important를 사용하여 우선 순위를 높이는 경우가 있을 수 있습니다. */
 }
 
@@ -283,6 +284,26 @@ table {
   }
 }
 
+@media (min-width: 1600px) {
+
+  .narrow {
+    width: calc(100% - (350px - (350px * 0.65)));
+  }
+}
+
+@media (min-width: 1800px) {
+
+  .narrow {
+    width: calc(100% - (350px - (350px * 0.9)));
+  }
+}
+
+@media (min-width: 1880px) {
+
+  .narrow {
+    width: 100%;
+  }
+}
 
 @keyframes App-logo-spin {
   from {

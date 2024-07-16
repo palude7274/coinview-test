@@ -1,13 +1,20 @@
-import React, { useRef, useEffect, useMemo } from "react";
+import React, { useRef, useEffect, useState, useMemo } from "react";
 import { Container, Row, Col } from 'react-bootstrap';
 import { useCoinData } from '../Context/CoinContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
+import { faCheck, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 
 const CoinList = ({ isChatOpen }) => {
     const { coinNameData, exchangeKRW, binanceRealtimeData, upbitRealtimeData } = useCoinData();
     const prevDataRef = useRef({}); // 이전 데이터를 저장하기 위한 ref
     const cellRefs = useRef({}); // 각 셀에 대한 ref를 저장하기 위한 ref
+    // 즐겨찾기 눌린 코인 저장
+    const [favorites, setFavorites] = useState(() => {
+        const saved = localStorage.getItem('favorites');
+        return saved ? JSON.parse(saved) : ['BTC', 'ETH', 'BCH', 'XRP', 'DOGE', 'SHIB', 'ADA', 'TRX'];
+    });
+    const [viewMode, setViewMode] = useState('favorites'); // 전체 코인, 즐겨찾기 상태
+    const [searchTerm, setSearchTerm] = useState(''); // 서치
 
     // 각 셀에 대한 ref를 생성하거나 가져오는 함수
     const getCellRef = (coinName, field) => {
@@ -48,18 +55,35 @@ const CoinList = ({ isChatOpen }) => {
         return isNaN(kimchi) ? '-' : kimchi.toFixed(2);
     };
 
-    // 코인 데이터를 업비트 가격 내림차순으로 정렬
-    const sortedCoinData = useMemo(() => {
-        return [...coinNameData].sort((a, b) => {
+    // 정렬된 코인 데이터 계산 (검색어와 즐겨찾기 필터링 포함)
+    const filteredAndSortedCoinData = useMemo(() => {
+        let filtered = [...coinNameData];
+        if (searchTerm) {
+            filtered = filtered.filter(coin => coin.toLowerCase().includes(searchTerm.toLowerCase()));
+        }
+        if (viewMode === 'favorites') {
+            filtered = filtered.filter(coin => favorites.includes(coin));
+        }
+        return filtered.sort((a, b) => {
             const priceA = upbitRealtimeData[a]?.upbitPrice || 0;
             const priceB = upbitRealtimeData[b]?.upbitPrice || 0;
             return priceB - priceA;
         });
-    }, [coinNameData, upbitRealtimeData]);
+    }, [coinNameData, upbitRealtimeData, favorites, viewMode, searchTerm]);
 
+    // 즐겨찾기 토글 함수
+    const toggleFavorite = (coin) => {
+        setFavorites(prev => {
+            const newFavorites = prev.includes(coin)
+                ? prev.filter(c => c !== coin)
+                : [...prev, coin];
+            localStorage.setItem('favorites', JSON.stringify(newFavorites));
+            return newFavorites;
+        });
+    };
 
     useEffect(() => {
-        sortedCoinData.forEach((coinName) => {
+        filteredAndSortedCoinData.forEach((coinName) => {
             const fields = ['binancePrice', 'upbitPrice', 'dayOverDay', 'accTradePrice24', 'kimchi'];
             fields.forEach((field) => {
                 let currentValue, prevValue;
@@ -113,7 +137,7 @@ const CoinList = ({ isChatOpen }) => {
 
             });
         });
-    }, [sortedCoinData, binanceRealtimeData, upbitRealtimeData, exchangeKRW]);
+    }, [filteredAndSortedCoinData, binanceRealtimeData, upbitRealtimeData, exchangeKRW]);
 
     return (
         <Container className='centerCoinList'>
@@ -124,8 +148,18 @@ const CoinList = ({ isChatOpen }) => {
                             <tr>
                                 <th colSpan="6" style={{ padding: 0 }}>
                                     <div style={{ display: 'flex', width: '100%', textAlign: 'center', paddingBottom: '10px' }}>
-                                        <span style={{ flex: 1 }}>전체 코인</span>
-                                        <span style={{ flex: 1 }}>즐겨 찾기</span>
+                                        <span
+                                            style={{ flex: 1, cursor: 'pointer', color: viewMode === 'all' ? '#80abd1' : '#e5e5eb' }}
+                                            onClick={() => setViewMode('all')}
+                                        >
+                                            전체 코인
+                                        </span>
+                                        <span
+                                            style={{ flex: 1, cursor: 'pointer', color: viewMode === 'favorites' ? '#80abd1' : '#e5e5eb' }}
+                                            onClick={() => setViewMode('favorites')}
+                                        >
+                                            즐겨 찾기
+                                        </span>
                                         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
                                             <div style={{ display: 'flex', alignItems: 'center', width: '100%', maxWidth: '200px' }}>
                                                 <FontAwesomeIcon
@@ -147,8 +181,11 @@ const CoinList = ({ isChatOpen }) => {
                                                         border: 'none',
                                                         outline: 'none',
                                                         borderRadius: '0 5px 5px 0',
-                                                        textAlign:'left' }}
+                                                        textAlign: 'left'
+                                                    }}
                                                     placeholder="코인 검색"
+                                                    value={searchTerm}
+                                                    onChange={(e) => setSearchTerm(e.target.value)}
                                                 />
                                             </div>
                                         </div>
@@ -156,7 +193,7 @@ const CoinList = ({ isChatOpen }) => {
                                 </th>
                             </tr>
                             <tr>
-                                <th>코인</th>
+                                <th className='wide' style={{width:'10%'}}>코인</th>
                                 <th>바이낸스($)</th>
                                 <th>업비트(₩)</th>
                                 <th>전일대비(%)</th>
@@ -165,7 +202,7 @@ const CoinList = ({ isChatOpen }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {sortedCoinData.map((coinName) => {
+                            {filteredAndSortedCoinData.map((coinName) => {
                                 const binanceData = binanceRealtimeData[coinName] || {};
                                 const upbitData = upbitRealtimeData[coinName] || {};
                                 const binancePrice = formatNumber(binanceData.binancePrice);
@@ -177,6 +214,16 @@ const CoinList = ({ isChatOpen }) => {
                                 return (
                                     <tr key={coinName}>
                                         <td className='logos'>
+                                            <div>
+                                                <FontAwesomeIcon
+                                                    icon={faCheck}
+                                                    style={{
+                                                        color: favorites.includes(coinName) ? '#80abd1' : 'gray',
+                                                        borderBottom : favorites.includes(coinName) ? '2px solid #80abd1' : 'gray',
+                                                        cursor: 'pointer' }}
+                                                    onClick={() => toggleFavorite(coinName)}
+                                                />
+                                            </div>
                                             <div className='logoLeft'>
                                                 {coinName ? (
                                                     <img className='logoImg'
