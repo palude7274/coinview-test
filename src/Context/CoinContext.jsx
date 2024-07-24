@@ -3,6 +3,11 @@ import React, { createContext, useState, useContext } from 'react';
 const CoinContext = createContext();
 
 export const CoinDataProvider = ({ children }) => {
+    const [favorites, setFavorites] = useState(() => {
+        const saved = localStorage.getItem('favorites');
+        return saved ? JSON.parse(saved) : ['BTC', 'ETH', 'BCH', 'XRP', 'DOGE', 'SHIB', 'ADA', 'TRX'];
+    });
+    const [viewMode, setViewMode] = useState('favorites');
     const [coinNameData, setCoinNameData] = useState([]);
     const [validBinanceCoins, setValidBinanceCoins] = useState([]);
     const [binanceRealtimeData, setBinanceRealtimeData] = useState({});
@@ -11,6 +16,10 @@ export const CoinDataProvider = ({ children }) => {
 
     return (
         <CoinContext.Provider value={{
+            favorites,
+            setFavorites,
+            viewMode,
+            setViewMode,
             coinNameData,
             setCoinNameData,
             validBinanceCoins,

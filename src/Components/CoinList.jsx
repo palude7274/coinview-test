@@ -2,18 +2,12 @@ import React, { useRef, useEffect, useState, useMemo } from "react";
 import { Container, Row, Col } from 'react-bootstrap';
 import { useCoinData } from '../Context/CoinContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCheck, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
+import { faCheck } from '@fortawesome/free-solid-svg-icons'
 
 const CoinList = ({ isChatOpen }) => {
-    const { coinNameData, exchangeKRW, binanceRealtimeData, upbitRealtimeData } = useCoinData();
+    const { favorites, setFavorites, viewMode, setViewMode, coinNameData, exchangeKRW, binanceRealtimeData, upbitRealtimeData } = useCoinData();
     const prevDataRef = useRef({}); // 이전 데이터를 저장하기 위한 ref
     const cellRefs = useRef({}); // 각 셀에 대한 ref를 저장하기 위한 ref
-    // 즐겨찾기 눌린 코인 저장
-    const [favorites, setFavorites] = useState(() => {
-        const saved = localStorage.getItem('favorites');
-        return saved ? JSON.parse(saved) : ['BTC', 'ETH', 'BCH', 'XRP', 'DOGE', 'SHIB', 'ADA', 'TRX'];
-    });
-    const [viewMode, setViewMode] = useState('favorites'); // 전체 코인, 즐겨찾기 상태
     const [searchTerm, setSearchTerm] = useState(''); // 서치
 
     // 각 셀에 대한 ref를 생성하거나 가져오는 함수
@@ -45,11 +39,40 @@ const CoinList = ({ isChatOpen }) => {
         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         return parts.join('.');
     };
+    // 김프 가격 차이 계산 함수
+    const calculateKimchiPrice = (upbitPrice, binancePrice, exchangeKRW) => {
+        if (!upbitPrice || !binancePrice || !exchangeKRW) {
+            return '';
+        }
+        const kimchiPrice = upbitPrice - binancePrice * exchangeKRW;
+        if (isNaN(kimchiPrice)) return '-';
+
+        const absKimchiPrice = Math.abs(kimchiPrice);
+        let formattedPrice;
+
+        if (absKimchiPrice >= 1000) {
+            // 세자리수 이상일 때 소수점 없애기
+            formattedPrice = kimchiPrice.toFixed(0);
+        } else if (absKimchiPrice >= 10) {
+            // 두자리수 이상일 때 소수점 2자리
+            formattedPrice = kimchiPrice.toFixed(2);
+        } else {
+            // 한자리 일때 소수점 4자리
+            formattedPrice = kimchiPrice.toFixed(4);
+        }
+
+        return formatNumber(formattedPrice);
+
+    };
+    
+    const handleSearchBlur = () => {
+        setSearchTerm('');
+    };
 
     // 김프 계산 함수
     const calculateKimchi = (upbitPrice, binancePrice) => {
         if (!upbitPrice || !binancePrice || !exchangeKRW || binancePrice === 0) {
-            return '-';
+            return '';
         }
         const kimchi = ((upbitPrice - binancePrice * exchangeKRW) / (binancePrice * exchangeKRW)) * 100;
         return isNaN(kimchi) ? '-' : kimchi.toFixed(2);
@@ -120,13 +143,8 @@ const CoinList = ({ isChatOpen }) => {
                 const cellRef = getCellRef(coinName, field);
 
                 // 전일대비와 김프 색상 클래스 추가
-                if (field === 'dayOverDay') {
-                    if (currentValue > 0) {
-                        cellRef.current?.classList.add('blue-text');
-                    } else if (currentValue < 0) {
-                        cellRef.current?.classList.add('red-text');
-                    }
-                } else if (field === 'kimchi') {
+                if (field === 'dayOverDay' || field === 'kimchi') {
+                    cellRef.current?.classList.remove('blue-text', 'red-text');
                     if (currentValue > 0) {
                         cellRef.current?.classList.add('blue-text');
                     } else if (currentValue < 0) {
@@ -147,58 +165,44 @@ const CoinList = ({ isChatOpen }) => {
                         <thead>
                             <tr>
                                 <th colSpan="6" style={{ padding: 0 }}>
-                                    <div style={{ display: 'flex', width: '100%', textAlign: 'center', paddingBottom: '10px' }}>
-                                        <span
-                                            style={{ flex: 1, cursor: 'pointer', color: viewMode === 'all' ? '#80abd1' : '#e5e5eb' }}
+                                    <div className='listVanner' style={{ display: 'flex', width: '100%', textAlign: 'center' }}>
+                                        <span className="allCoinList"
+                                            style={{
+                                                flex: 1,
+                                                cursor: 'pointer',
+                                                paddingBottom: '10px',
+                                                color: viewMode === 'all' ? '#80abd1' : '#d1ccccf5',
+                                                borderBottom: viewMode === 'all' ? '3px solid #80abd1' : '#e5e5eb'
+                                            }}
                                             onClick={() => setViewMode('all')}
                                         >
                                             전체 코인
                                         </span>
-                                        <span
-                                            style={{ flex: 1, cursor: 'pointer', color: viewMode === 'favorites' ? '#80abd1' : '#e5e5eb' }}
+                                        <span className="favorites"
+                                            style={{
+                                                flex: 1,
+                                                cursor: 'pointer',
+                                                paddingBottom: '10px',
+                                                color: viewMode === 'favorites' ? '#80abd1' : '#d1ccccf5',
+                                                borderBottom: viewMode === 'favorites' ? '3px solid #80abd1' : '#e5e5eb'
+                                            }}
                                             onClick={() => setViewMode('favorites')}
                                         >
                                             즐겨 찾기
                                         </span>
-                                        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', width: '100%', maxWidth: '200px' }}>
-                                                <FontAwesomeIcon
-                                                    icon={faMagnifyingGlass}
-                                                    style={{
-                                                        color: 'gray',
-                                                        backgroundColor: 'white',
-                                                        padding: '5px',
-                                                        borderRadius: '5px 0 0 5px'
-                                                    }}
-                                                />
-                                                <input
-                                                    style={{
-                                                        flex: 1,
-                                                        minWidth: '0',
-                                                        paddingLeft: '8px',
-                                                        paddingRight: '8px',
-                                                        marginRight: '5px',
-                                                        border: 'none',
-                                                        outline: 'none',
-                                                        borderRadius: '0 5px 5px 0',
-                                                        textAlign: 'left'
-                                                    }}
-                                                    placeholder="코인 검색"
-                                                    value={searchTerm}
-                                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                                />
-                                            </div>
+                                        <div className="searchContainer" >
+                                            <input className="searchBar" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} onBlur={handleSearchBlur} />
                                         </div>
                                     </div>
                                 </th>
                             </tr>
                             <tr>
-                                <th className='wide' style={{width:'10%'}}>코인</th>
-                                <th>바이낸스($)</th>
-                                <th>업비트(₩)</th>
-                                <th>전일대비(%)</th>
-                                <th>거래량(억)</th>
-                                <th>김프(%)</th>
+                                <th className='wide' style={{ width: '13%' }}>코인</th>
+                                <th className='wide' style={{ width: '17%' }}>바이낸스($)</th>
+                                <th className='wide' style={{ width: '18%' }}>업비트(₩)</th>
+                                <th className='wide' style={{ width: '17%' }}>전일대비(%)</th>
+                                <th className='wide' style={{ width: '15%' }}>거래량(억)</th>
+                                <th className='wide' style={{ width: '20%' }}>김프(%)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -219,8 +223,9 @@ const CoinList = ({ isChatOpen }) => {
                                                     icon={faCheck}
                                                     style={{
                                                         color: favorites.includes(coinName) ? '#80abd1' : 'gray',
-                                                        borderBottom : favorites.includes(coinName) ? '2px solid #80abd1' : 'gray',
-                                                        cursor: 'pointer' }}
+                                                        borderBottom: favorites.includes(coinName) ? '2px solid #80abd1' : 'gray',
+                                                        cursor: 'pointer'
+                                                    }}
                                                     onClick={() => toggleFavorite(coinName)}
                                                 />
                                             </div>
@@ -244,7 +249,9 @@ const CoinList = ({ isChatOpen }) => {
                                         <td ref={getCellRef(coinName, 'upbitPrice')}>{upbitPrice}</td>
                                         <td ref={getCellRef(coinName, 'dayOverDay')}>{dayOverDay}%</td>
                                         <td ref={getCellRef(coinName, 'accTradePrice24')}>{accTradePrice24}</td>
-                                        <td ref={getCellRef(coinName, 'kimchi')}>{kimchi}%</td>
+                                        <td ref={getCellRef(coinName, 'kimchi')}>
+                                            {calculateKimchiPrice(upbitData.upbitPrice, binanceData.binancePrice, exchangeKRW)} {kimchi}%
+                                        </td>
                                     </tr>
                                 );
                             })}
